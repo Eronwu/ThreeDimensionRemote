@@ -1,18 +1,19 @@
 package com.woo.threedimensionremote;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
@@ -26,7 +27,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView mTextViewLinearAccelerationX, mTextViewLinearAccelerationY, mTextViewLinearAccelerationZ;
     private TextView mTextViewMagneticFieldX, mTextViewMagneticFieldY, mTextViewMagneticFieldZ;
     String mStringAcc, mStringLinearAcc, mStringGyroscope, mStringMagField;
-    private boolean mAccShow, mGyroShow, mLinAccShow, mMagFieldShow;
+    private long mAccTime, mGyroTime, mLinAccTime, mMagFieldTime;
+    private int showStyle = 0; // 0: scroll 1: all data list
+    private boolean dataStop = false;
 
 
     @Override
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void initSensor() {
         String s = new String();
         TextView textView;
+        Button buttonAcclerometer, buttonLinearAcceleration;
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
@@ -54,11 +58,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         textView = findViewById(R.id.sensor_name_text_view);
         textView.setText(s);
-        textView.setMovementMethod(ScrollingMovementMethod.getInstance());
-        mTextViewAccelerometerX.setMovementMethod(ScrollingMovementMethod.getInstance());
-        mTextViewGyroscopeX.setMovementMethod(ScrollingMovementMethod.getInstance());
-        mTextViewLinearAccelerationX.setMovementMethod(ScrollingMovementMethod.getInstance());
-        mTextViewMagneticFieldX.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         mTextViewAccelerometerX = findViewById(R.id.text_view_accelerometer_x_axis);
 //        mTextViewAccelerometerY = findViewById(R.id.text_view_accelerometer_y_axis);
@@ -73,6 +72,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 //        mTextViewMagneticFieldY = findViewById(R.id.text_view_magnetic_field_y_axis);
 //        mTextViewMagneticFieldZ = findViewById(R.id.text_view_magnetic_field_z_axis);
 
+        buttonAcclerometer = findViewById(R.id.button_accelerometer);
+        buttonLinearAcceleration = findViewById(R.id.button_linear_acceleration);
+
+        textView.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mTextViewAccelerometerX.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mTextViewGyroscopeX.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mTextViewLinearAccelerationX.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mTextViewMagneticFieldX.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        mStringAcc = mStringLinearAcc =  mStringGyroscope = mStringMagField = "";
+
+        buttonAcclerometer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent()
+                        .setClass(MainActivity.this, SwingDotView.class)
+                        .putExtra("whichButton", 0));
+            }
+        });
+
+        buttonLinearAcceleration.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent()
+                        .setClass(MainActivity.this, SwingDotView.class)
+                        .putExtra("whichButton", 1));
+            }
+        });
     }
 
     @Override
@@ -86,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mSensorManager.registerListener(this, mSensorGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         if (mSensorMagneticField != null)
             mSensorManager.registerListener(this, mSensorMagneticField, SensorManager.SENSOR_DELAY_NORMAL);
+        mAccTime = mGyroTime = mLinAccTime = mMagFieldTime = System.currentTimeMillis();
     }
 
     @Override
@@ -103,105 +131,61 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
+        String s = floatToInaccurateString(event.values[0]) + " " +
+                floatToInaccurateString(event.values[1]) + " " +
+                floatToInaccurateString(event.values[2]);
         if (event.sensor == mSensorAccelerometer && sensorDataCanEntered(event.sensor)) {
-            mStringAcc += "\n" + floatToInaccurateString(event.values[0]) + " " +
-                    floatToInaccurateString(event.values[1]) + " " +
-                    floatToInaccurateString(event.values[2]);
-            mTextViewAccelerometerX.setText(mStringAcc);
-//            mTextViewAccelerometerY.setText(floatToInaccurateString(event.values[1]));
-//            mTextViewAccelerometerZ.setText(floatToInaccurateString(event.values[2]));
+            mStringAcc += "\n" + s;
+            if (showStyle == 0)
+                mTextViewAccelerometerX.setText(s);
+            else
+                mTextViewAccelerometerX.setText(mStringAcc);
         } else if (event.sensor == mSensorGyroscope && sensorDataCanEntered(event.sensor)) {
-            mStringLinearAcc += "\n" + floatToInaccurateString(event.values[0]) + " " +
-                    floatToInaccurateString(event.values[1]) + " " +
-                    floatToInaccurateString(event.values[2]);
-            mTextViewGyroscopeX.setText(mStringLinearAcc);
-//            mTextViewGyroscopeY.setText(floatToInaccurateString(event.values[1]));
-//            mTextViewGyroscopeZ.setText(floatToInaccurateString(event.values[2]));
-        } else if (event.sensor == mSensorLinearAcceleration && sensorDataCanEntered(event.sensor)) {
-            mStringGyroscope += "\n" + floatToInaccurateString(event.values[0]) + " " +
-                    floatToInaccurateString(event.values[1]) + " " +
-                    floatToInaccurateString(event.values[2]);
-            mTextViewLinearAccelerationX.setText(mStringGyroscope);
-//            mTextViewLinearAccelerationY.setText(floatToInaccurateString(event.values[1]));
-//            mTextViewLinearAccelerationZ.setText(floatToInaccurateString(event.values[2]));
-        } else if (event.sensor == mSensorMagneticField && sensorDataCanEntered(event.sensor)) {
-            mStringMagField += "\n" + floatToInaccurateString(event.values[0]) + " " +
-                    floatToInaccurateString(event.values[1]) + " " +
-                    floatToInaccurateString(event.values[2]);
-            mTextViewMagneticFieldX.setText(mStringMagField);
-//            mTextViewMagneticFieldY.setText(floatToInaccurateString(event.values[1]));
-//            mTextViewMagneticFieldZ.setText(floatToInaccurateString(event.values[2]));
-        }
+            mStringLinearAcc += "\n" + s;
 
+            if (showStyle == 0)
+                mTextViewGyroscopeX.setText(s);
+            else
+                mTextViewGyroscopeX.setText(mStringLinearAcc);
+        } else if (event.sensor == mSensorLinearAcceleration && sensorDataCanEntered(event.sensor)) {
+            mStringGyroscope += "\n" + s;
+
+            if (showStyle == 0)
+                mTextViewLinearAccelerationX.setText(s);
+            else
+                mTextViewLinearAccelerationX.setText(mStringGyroscope);
+        } else if (event.sensor == mSensorMagneticField && sensorDataCanEntered(event.sensor)) {
+            mStringMagField += "\n" + s;
+
+            if (showStyle == 0)
+                mTextViewMagneticFieldX.setText(s);
+            else
+                mTextViewMagneticFieldX.setText(mStringMagField);
+        }
     }
 
     private boolean sensorDataCanEntered(Sensor sensor) {
+        if (dataStop) return false;
+        long currentTime = System.currentTimeMillis();
         if (sensor == mSensorAccelerometer) {
-            if (mAccShow) mAccShow = false;
-            else return false;
+            if (currentTime - mAccTime < 500)
+                return false;
+            else mAccTime = System.currentTimeMillis();
         } else if (sensor == mSensorGyroscope) {
-            if (mGyroShow) mGyroShow = false;
-            else return false;
+            if (currentTime - mGyroTime < 1000)
+                return false;
+            else mGyroTime = System.currentTimeMillis();
         } else if (sensor == mSensorLinearAcceleration) {
-            if (mLinAccShow) mLinAccShow = false;
-            else return false;
+            if (currentTime - mLinAccTime < 500)
+                return false;
+            else mLinAccTime = System.currentTimeMillis();
         } else if (sensor == mSensorMagneticField) {
-            if (mMagFieldShow) mMagFieldShow = false;
-            else return false;
+            if (currentTime - mMagFieldTime < 1000)
+                return false;
+            else mMagFieldTime = System.currentTimeMillis();
         } else return false;
 
-        new Thread(new SensorShowThread(sensor)).start();
-
         return true;
-    }
-
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1:
-                    mAccShow = true;
-                    break;
-                case 2:
-                    mGyroShow = true;
-                    break;
-                case 3:
-                    mLinAccShow = true;
-                    break;
-                case 4:
-                    mMagFieldShow = true;
-                    break;
-            }
-            super.handleMessage(msg);
-        }
-    };
-
-    class SensorShowThread extends Thread {
-        private Sensor sensor;
-
-        public SensorShowThread(Sensor sensor) {
-            this.sensor = sensor;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(1000);
-//                Message msg = new Message();
-                if (sensor == mSensorAccelerometer) {
-                    mAccShow = true;
-                } else if (sensor == mSensorGyroscope) {
-                    mGyroShow = true;
-                } else if (sensor == mSensorLinearAcceleration) {
-                    mLinAccShow = true;
-                } else if (sensor == mSensorMagneticField) {
-                    mMagFieldShow = true;
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
@@ -221,10 +205,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_data_clear) {
-            mStringAcc = mStringLinearAcc = mStringGyroscope = mStringMagField = "";
+        switch (item.getItemId()) {
+            case R.id.menu_data_clear:
+                mStringAcc = mStringLinearAcc = mStringGyroscope = mStringMagField = "";
+break;
+            case R.id.menu_data_style:
+                showStyle = showStyle == 0 ? 1 : 0;
+                if (showStyle == 1) {
+                    // TODO: stop button show
+                }
+                break;
+            case R.id.menu_data_stop:
+                dataStop = !dataStop;
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

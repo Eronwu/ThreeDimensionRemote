@@ -17,10 +17,11 @@
         android:fadeScrollbars="false"
         android:layout_marginBottom="20dp"/>
 
-    <TextView
+    <Button
+        android:id="@+id/button_accelerometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="accelerometer: " />
+        android:text="accelerometer" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,15 +52,17 @@
             <!--android:layout_marginLeft="10dp"/>-->
     </LinearLayout>
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="gyroscope: " />
+        android:text="gyroscope"
+        android:visibility="gone"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="20dp"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/text_view_gyroscope_x_axis"
@@ -85,10 +88,11 @@
             <!--android:layout_marginLeft="10dp"/>-->
     </LinearLayout>
 
-    <TextView
+    <Button
+        android:id="@+id/button_linear_acceleration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="linear_acceleration: " />
+        android:text="linear_acceleration" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -122,12 +126,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="magnetic_field: " />
+        android:text="magnetic_field"
+        android:visibility="gone"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="20dp"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/text_view_magnetic_field_x_axis"
