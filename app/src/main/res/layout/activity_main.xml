@@ -1,91 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/sensor_name_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxLines="5"
-        android:text="all sensor name"
-        android:scrollbars="vertical"
+        android:layout_marginBottom="20dp"
         android:fadeScrollbars="false"
-        android:layout_marginBottom="20dp"/>
+        android:maxLines="5"
+        android:scrollbars="vertical"
+        android:text="all sensor name" />
 
     <Button
         android:id="@+id/button_accelerometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="accelerometer" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/text_view_accelerometer_x_axis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="accelerometer_x"
+            android:fadeScrollbars="false"
             android:maxLines="5"
             android:scrollbars="vertical"
-            android:fadeScrollbars="false" />
+            android:text="accelerometer_x" />
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_accelerometer_y_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="accelerometer_y"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_accelerometer_y_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="accelerometer_y"-->
+        <!--android:layout_marginLeft="10dp"/>-->
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_accelerometer_z_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="accelerometer_z"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_accelerometer_z_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="accelerometer_z"-->
+        <!--android:layout_marginLeft="10dp"/>-->
     </LinearLayout>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="gyroscope"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginBottom="20dp"
+        android:orientation="horizontal"
         android:visibility="gone">
 
         <TextView
             android:id="@+id/text_view_gyroscope_x_axis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="gyroscope_x"
+            android:fadeScrollbars="false"
             android:maxLines="5"
             android:scrollbars="vertical"
-            android:fadeScrollbars="false"/>
+            android:text="gyroscope_x" />
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_gyroscope_y_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="gyroscope_y"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_gyroscope_y_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="gyroscope_y"-->
+        <!--android:layout_marginLeft="10dp"/>-->
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_gyroscope_z_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="gyroscope_z"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_gyroscope_z_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="gyroscope_z"-->
+        <!--android:layout_marginLeft="10dp"/>-->
     </LinearLayout>
 
     <Button
@@ -93,69 +94,71 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="linear_acceleration" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/text_view_linear_acceleration_x_axis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="linear_acceleration_x"
+            android:fadeScrollbars="false"
             android:maxLines="5"
             android:scrollbars="vertical"
-            android:fadeScrollbars="false"/>
+            android:text="linear_acceleration_x" />
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_linear_acceleration_y_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="linear_acceleration_y"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_linear_acceleration_y_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="linear_acceleration_y"-->
+        <!--android:layout_marginLeft="10dp"/>-->
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_linear_acceleration_z_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="linear_acceleration_z"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_linear_acceleration_z_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="linear_acceleration_z"-->
+        <!--android:layout_marginLeft="10dp"/>-->
     </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="magnetic_field"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginBottom="20dp"
+        android:orientation="horizontal"
         android:visibility="gone">
 
         <TextView
             android:id="@+id/text_view_magnetic_field_x_axis"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="magnetic_field_x"
+            android:fadeScrollbars="false"
             android:maxLines="5"
             android:scrollbars="vertical"
-            android:fadeScrollbars="false" />
+            android:text="magnetic_field_x" />
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_magnetic_field_y_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="magnetic_field_y"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_magnetic_field_y_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="magnetic_field_y"-->
+        <!--android:layout_marginLeft="10dp"/>-->
 
         <!--<TextView-->
-            <!--android:id="@+id/text_view_magnetic_field_z_axis"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="magnetic_field_z"-->
-            <!--android:layout_marginLeft="10dp"/>-->
+        <!--android:id="@+id/text_view_magnetic_field_z_axis"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="magnetic_field_z"-->
+        <!--android:layout_marginLeft="10dp"/>-->
     </LinearLayout>
 </LinearLayout>

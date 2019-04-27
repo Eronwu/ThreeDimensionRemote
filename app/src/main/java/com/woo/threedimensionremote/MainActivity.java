@@ -20,13 +20,13 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private final String TAG = "MainActivity";
+    String mStringAcc, mStringLinearAcc, mStringGyroscope, mStringMagField;
     private SensorManager mSensorManager;
     private Sensor mSensorAccelerometer, mSensorLinearAcceleration, mSensorGyroscope, mSensorMagneticField;
     private TextView mTextViewAccelerometerX, mTextViewAccelerometerY, mTextViewAccelerometerZ;
     private TextView mTextViewGyroscopeX, mTextViewGyroscopeY, mTextViewGyroscopeZ;
     private TextView mTextViewLinearAccelerationX, mTextViewLinearAccelerationY, mTextViewLinearAccelerationZ;
     private TextView mTextViewMagneticFieldX, mTextViewMagneticFieldY, mTextViewMagneticFieldZ;
-    String mStringAcc, mStringLinearAcc, mStringGyroscope, mStringMagField;
     private long mAccTime, mGyroTime, mLinAccTime, mMagFieldTime;
     private int showStyle = 0; // 0: scroll 1: all data list
     private boolean dataStop = false;
@@ -81,14 +81,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mTextViewLinearAccelerationX.setMovementMethod(ScrollingMovementMethod.getInstance());
         mTextViewMagneticFieldX.setMovementMethod(ScrollingMovementMethod.getInstance());
 
-        mStringAcc = mStringLinearAcc =  mStringGyroscope = mStringMagField = "";
+        mStringAcc = mStringLinearAcc = mStringGyroscope = mStringMagField = "";
 
         buttonAcclerometer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent()
-                        .setClass(MainActivity.this, SwingDotView.class)
-                        .putExtra("whichButton", 0));
+                        .setClass(MainActivity.this, SwingDotActivity.class)
+                        .putExtra("whichSensor", 0));
             }
         });
 
@@ -96,8 +96,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View v) {
                 startActivity(new Intent()
-                        .setClass(MainActivity.this, SwingDotView.class)
-                        .putExtra("whichButton", 1));
+                        .setClass(MainActivity.this, SwingDotActivity.class)
+                        .putExtra("whichSensor", 1));
             }
         });
     }
@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (mSensorAccelerometer != null)
             mSensorManager.unregisterListener(this);
         if (mSensorLinearAcceleration != null)
@@ -127,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mSensorManager.unregisterListener(this);
         if (mSensorMagneticField != null)
             mSensorManager.unregisterListener(this);
+        super.onDestroy();
     }
 
     @Override
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         switch (item.getItemId()) {
             case R.id.menu_data_clear:
                 mStringAcc = mStringLinearAcc = mStringGyroscope = mStringMagField = "";
-break;
+                break;
             case R.id.menu_data_style:
                 showStyle = showStyle == 0 ? 1 : 0;
                 if (showStyle == 1) {
