@@ -15,4 +15,9 @@
         android:orderInCategory="100"
         android:title="CLEAR"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_data_ip"
+        android:orderInCategory="100"
+        android:title="BOX IP" />
 </menu>

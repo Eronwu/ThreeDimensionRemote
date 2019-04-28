@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import com.woo.threedimensionremote.protocol.Sender;
+
 public class SwingDotView extends View {
     private static final String TAG = "SwingDotView";
     private static final float MAX_ACC = 20;
@@ -50,12 +52,23 @@ public class SwingDotView extends View {
 
     private void drawPoint(Canvas canvas, float x, float y) {
         canvas.drawPoint(x, y, mPointPaint);
+
+        sendData(x, y);
+    }
+
+    private void sendData(float x, float y) {
+        byte[] bx, by;
+
+        bx = MathUtil.int2ByteArray((int) x);
+        Sender.getInstance().sendData(bx);
+        by = MathUtil.int2ByteArray((int) y);
+        Sender.getInstance().sendData(by);
     }
 
     // change to use angle / need init sensitivity at beginning
     public void setPointPos(float x, float z) {
-        x = (float)(Math.round(x*10))/10;
-        z = (float)(Math.round(z*10))/10;
+        x = (float) (Math.round(x * 10)) / 10;
+        z = (float) (Math.round(z * 10)) / 10;
         this.x = x * sensitivity + mScreenWidth / 2;
         this.z = z * sensitivity + mScreenHeight / 2;
         Log.d(TAG, "setPointPos: " + x + "   " + z);
@@ -81,7 +94,7 @@ public class SwingDotView extends View {
         drawPoint(canvas, x, z);
         String s = x + "     " + z;
 //        Log.d(TAG, "onDraw: "+ mScreenWidth + " " + mScreenHeight);
-        canvas.drawText(s, mScreenWidth/2, mScreenHeight - 50, mTextPaint);
+        canvas.drawText(s, mScreenWidth / 2, mScreenHeight - 50, mTextPaint);
 
         if (mShowPath) {
             canvas.drawText("PATH", 10, mScreenHeight - 50, mTextPaint);
@@ -96,7 +109,7 @@ public class SwingDotView extends View {
         mScreenWidth = getMeasuredWidth();
         mScreenHeight = getMeasuredHeight();
 
-        Log.d(TAG, "onMeasure: "+ mScreenWidth + " " + mScreenHeight);
+        Log.d(TAG, "onMeasure: " + mScreenWidth + " " + mScreenHeight);
         x = mScreenWidth / 2;
         z = mScreenHeight / 2;
         mPath.moveTo(x, z);

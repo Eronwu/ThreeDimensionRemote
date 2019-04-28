@@ -1,16 +1,21 @@
 package com.woo.threedimensionremote;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.SeekBar;
+
+import com.woo.threedimensionremote.protocol.Sender;
 
 public class SwingDotActivity extends AppCompatActivity implements SensorEventListener {
     private static String TAG = "SwingDotActivity";
@@ -21,6 +26,8 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     private SwingDotView mSwingDotView;
     private boolean mShowPath = false;
 
+    public static String mStringServerIP;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +37,9 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
         SeekBar seekBar = findViewById(R.id.seek_bar_sensitivity);
 
         initSensor();
+        if (mStringServerIP != null) {
+            Sender.getInstance().init(SwingDotActivity.this);
+        }
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -39,10 +49,12 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) { }
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
     }
 
@@ -58,19 +70,26 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor == mSensorAccelerometer && whichSensor == 0) {
             Log.d(TAG, "onSensorChanged: " + event.values[0] + " " + event.values[2]);
-            x = - event.values[0];
-            z = - (event.values[1]);
-        }else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1) {
+            x = -event.values[0];
+            z = -(event.values[1]);
+        } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1) {
             x = event.values[0];
             z = event.values[2];
         }
 
         mSwingDotView.setPointPos(x, z);
         mSwingDotView.invalidate();
+        sendData(x, z);
+    }
+
+    private void sendData(float x, float z) {
+        // TODO: USE VIEW SEND TEMPORARY
+//        Sender.getInstance().sendData();
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) { }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
 
     @Override
     protected void onResume() {
@@ -87,6 +106,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             mSensorManager.unregisterListener(this);
         if (mSensorLinearAcceleration != null)
             mSensorManager.unregisterListener(this);
+        Sender.getInstance().deInit();
         super.onDestroy();
     }
 
@@ -102,7 +122,24 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             case R.id.menu_data_style:
                 mShowPath = !mShowPath;
                 mSwingDotView.setShowPath(mShowPath);
+                break;
+            case R.id.menu_data_ip:
+                final EditText serverIp = new EditText(this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("pls input server ip:")
+                        .setView(serverIp)
+                        .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mStringServerIP = serverIp.getText().toString();
+                                Sender.getInstance().init(SwingDotActivity.this);
+                            }
+                        })
+                        .setNegativeButton("cancel", null)
+                        .show();
+                break;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }
