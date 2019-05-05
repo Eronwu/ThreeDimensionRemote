@@ -60,8 +60,10 @@ public class SwingDotView extends View {
         byte[] bx, by;
 
         bx = MathUtil.int2ByteArray((int) x);
+        bx[0] = 0;
         Sender.getInstance().sendData(bx);
         by = MathUtil.int2ByteArray((int) y);
+        by[0] = 1;
         Sender.getInstance().sendData(by);
     }
 

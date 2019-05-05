@@ -28,6 +28,9 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
 
     public static String mStringServerIP;
 
+    private long mAccTime, mGyroTime, mLinAccTime, mMagFieldTime;
+    private boolean dataStop = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,18 +71,35 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor == mSensorAccelerometer && whichSensor == 0) {
+        if (event.sensor == mSensorAccelerometer && whichSensor == 0 && sensorDataCanEntered(event.sensor)) {
             Log.d(TAG, "onSensorChanged: " + event.values[0] + " " + event.values[2]);
             x = -event.values[0];
             z = -(event.values[1]);
-        } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1) {
+        } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1 && sensorDataCanEntered(event.sensor)) {
             x = event.values[0];
             z = event.values[2];
         }
+        else return;
 
         mSwingDotView.setPointPos(x, z);
         mSwingDotView.invalidate();
         sendData(x, z);
+    }
+
+    private boolean sensorDataCanEntered(Sensor sensor) {
+        if (dataStop) return false;
+        long currentTime = System.currentTimeMillis();
+        if (sensor == mSensorAccelerometer) {
+            if (currentTime - mAccTime < 500)
+                return false;
+            else mAccTime = System.currentTimeMillis();
+        } else if (sensor == mSensorLinearAcceleration) {
+            if (currentTime - mLinAccTime < 500)
+                return false;
+            else mLinAccTime = System.currentTimeMillis();
+        } else return false;
+
+        return true;
     }
 
     private void sendData(float x, float z) {
@@ -125,6 +145,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
                 break;
             case R.id.menu_data_ip:
                 final EditText serverIp = new EditText(this);
+                serverIp.setText("10.1.1.108");
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("pls input server ip:")
                         .setView(serverIp)
