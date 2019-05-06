@@ -73,7 +73,7 @@ public class SwingDotView extends View {
         z = (float) (Math.round(z * 10)) / 10;
         this.x = x * sensitivity + mScreenWidth / 2;
         this.z = z * sensitivity + mScreenHeight / 2;
-        Log.d(TAG, "setPointPos: " + x + "   " + z);
+//        Log.d(TAG, "setPointPos: " + x + "   " + z);
 /*        if (this.x + x > mScreenWidth) this.x = mScreenWidth;
         else if(this.x + x < 0) this.x = 0;
         else this.x += x;

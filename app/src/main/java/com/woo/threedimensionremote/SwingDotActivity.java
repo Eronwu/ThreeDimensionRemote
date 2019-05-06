@@ -72,7 +72,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor == mSensorAccelerometer && whichSensor == 0 && sensorDataCanEntered(event.sensor)) {
-            Log.d(TAG, "onSensorChanged: " + event.values[0] + " " + event.values[2]);
+//            Log.d(TAG, "onSensorChanged: " + event.values[0] + " " + event.values[2]);
             x = -event.values[0];
             z = -(event.values[1]);
         } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1 && sensorDataCanEntered(event.sensor)) {

@@ -30,6 +30,7 @@ public class TCPSocketManager {
     // TODO: need to auto get server ip
     public void init(Context context) {
         if (SwingDotActivity.mStringServerIP != null) {
+            Log.d(TAG, "run: start init");
         } else {
             Toast.makeText(context, "pls input box ip!", Toast.LENGTH_SHORT).show();
             return;
@@ -62,7 +63,8 @@ public class TCPSocketManager {
         if (mSocket != null && mOutputStream != null) {
             try {
                 mOutputStream.write(data);
-//                mOutputStream.flush();
+                Log.d(TAG, "sendData: senddata: " + data.length);
+                mOutputStream.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }

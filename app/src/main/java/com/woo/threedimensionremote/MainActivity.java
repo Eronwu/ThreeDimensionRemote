@@ -19,7 +19,7 @@ import android.widget.TextView;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    private final String TAG = "MainActivity";
+    public static final String TAG = "ThreeDRemote";
     String mStringAcc, mStringLinearAcc, mStringGyroscope, mStringMagField;
     private SensorManager mSensorManager;
     private Sensor mSensorAccelerometer, mSensorLinearAcceleration, mSensorGyroscope, mSensorMagneticField;
