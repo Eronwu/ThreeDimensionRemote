@@ -23,10 +23,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     String mStringAcc, mStringLinearAcc, mStringGyroscope, mStringMagField;
     private SensorManager mSensorManager;
     private Sensor mSensorAccelerometer, mSensorLinearAcceleration, mSensorGyroscope, mSensorMagneticField;
-    private TextView mTextViewAccelerometerX, mTextViewAccelerometerY, mTextViewAccelerometerZ;
-    private TextView mTextViewGyroscopeX, mTextViewGyroscopeY, mTextViewGyroscopeZ;
-    private TextView mTextViewLinearAccelerationX, mTextViewLinearAccelerationY, mTextViewLinearAccelerationZ;
-    private TextView mTextViewMagneticFieldX, mTextViewMagneticFieldY, mTextViewMagneticFieldZ;
+    private TextView mTextViewAccelerometerX;
+    private TextView mTextViewGyroscopeX;
+    private TextView mTextViewLinearAccelerationX;
+    private TextView mTextViewMagneticFieldX;
     private long mAccTime, mGyroTime, mLinAccTime, mMagFieldTime;
     private int showStyle = 0; // 0: scroll 1: all data list
     private boolean dataStop = false;
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void initSensor() {
         String s = new String();
         TextView textView;
-        Button buttonAcclerometer, buttonLinearAcceleration;
+        Button buttonAcclerometer, buttonLinearAcceleration, buttonGyroscope;
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
@@ -60,20 +60,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         textView.setText(s);
 
         mTextViewAccelerometerX = findViewById(R.id.text_view_accelerometer_x_axis);
-//        mTextViewAccelerometerY = findViewById(R.id.text_view_accelerometer_y_axis);
-//        mTextViewAccelerometerZ = findViewById(R.id.text_view_accelerometer_z_axis);
         mTextViewGyroscopeX = findViewById(R.id.text_view_gyroscope_x_axis);
-//        mTextViewGyroscopeY = findViewById(R.id.text_view_gyroscope_y_axis);
-//        mTextViewGyroscopeZ = findViewById(R.id.text_view_gyroscope_z_axis);
         mTextViewLinearAccelerationX = findViewById(R.id.text_view_linear_acceleration_x_axis);
-//        mTextViewLinearAccelerationY = findViewById(R.id.text_view_linear_acceleration_y_axis);
-//        mTextViewLinearAccelerationZ = findViewById(R.id.text_view_linear_acceleration_z_axis);
         mTextViewMagneticFieldX = findViewById(R.id.text_view_magnetic_field_x_axis);
-//        mTextViewMagneticFieldY = findViewById(R.id.text_view_magnetic_field_y_axis);
-//        mTextViewMagneticFieldZ = findViewById(R.id.text_view_magnetic_field_z_axis);
 
         buttonAcclerometer = findViewById(R.id.button_accelerometer);
         buttonLinearAcceleration = findViewById(R.id.button_linear_acceleration);
+        buttonGyroscope = findViewById(R.id.button_gyroscope);
 
         textView.setMovementMethod(ScrollingMovementMethod.getInstance());
         mTextViewAccelerometerX.setMovementMethod(ScrollingMovementMethod.getInstance());
@@ -98,6 +91,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startActivity(new Intent()
                         .setClass(MainActivity.this, SwingDotActivity.class)
                         .putExtra("whichSensor", 1));
+            }
+        });
+
+        buttonGyroscope.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent()
+                        .setClass(MainActivity.this, SwingDotActivity.class)
+                        .putExtra("whichSensor", 2));
             }
         });
     }
@@ -140,7 +142,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 mTextViewAccelerometerX.setText(s);
             else
                 mTextViewAccelerometerX.setText(mStringAcc);
-        } else if (event.sensor == mSensorGyroscope && sensorDataCanEntered(event.sensor)) {
+//        } else if (event.sensor == mSensorGyroscope && sensorDataCanEntered(event.sensor)) {
+        } else if (event.sensor == mSensorGyroscope){
             mStringLinearAcc += "\n" + s;
 
             if (showStyle == 0)

@@ -19,12 +19,15 @@ import com.woo.threedimensionremote.protocol.Sender;
 
 public class SwingDotActivity extends AppCompatActivity implements SensorEventListener {
     private static String TAG = "SwingDotActivity";
-    private float x, z;
+    private static final float TV_RATIO_Y = 1080f / 1920f;
+    private float x, y;
+    private float paintX, paintY;
     private SensorManager mSensorManager;
-    private Sensor mSensorAccelerometer, mSensorLinearAcceleration;
-    private int whichSensor = 0; // 0: acc 1: linearAcc
+    private Sensor mSensorAccelerometer, mSensorLinearAcceleration, mSensorGyroscope;
+    public static int whichSensor = 0; // 0: acc 1: linearAcc 2:gyroscope
     private SwingDotView mSwingDotView;
     private boolean mShowPath = false;
+    private int sensitivity;
 
     public static String mStringServerIP;
 
@@ -49,6 +52,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 Log.d(TAG, "onProgressChanged: " + progress);
                 mSwingDotView.setSensitivity(progress);
+                sensitivity = progress + 1;
             }
 
             @Override
@@ -66,6 +70,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        mSensorGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
     }
 
@@ -75,17 +80,27 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
 //        if (event.sensor == mSensorAccelerometer && whichSensor == 0){// && sensorDataCanEntered(event.sensor)) {
 //            Log.d(TAG, "onSensorChanged: " + event.values[0] + " " + event.values[2]);
             x = -event.values[0];
-            z = -(event.values[1]);
+            y = -(event.values[1]);
 //        } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1 && sensorDataCanEntered(event.sensor)) {
         } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1 ){//&& sensorDataCanEntered(event.sensor)) {
             x = event.values[0];
-            z = event.values[2];
+            y = event.values[2];
+        } else if (event.sensor == mSensorGyroscope && whichSensor == 2 && sensorDataCanEntered(event.sensor)) {
+//        } else if (event.sensor == mSensorGyroscope){// && whichSensor == 2 ){//&& sensorDataCanEntered(event.sensor)) {
+            x = -event.values[2];
+            y = -event.values[0];
+            paintX += -event.values[2];
+            paintY += -event.values[0];
         }
         else return;
 
-        mSwingDotView.setPointPos(x, z);
+        // 0.1 eliminate the slight shake by user hand.
+        if (Math.abs(x) < 0.1f && Math.abs(y) < 0.1f) return;
+
+        Log.d(TAG, "onSensorChanged: "+ x * sensitivity + " " + y * sensitivity);
+        mSwingDotView.setPointPos(paintX, paintY);
         mSwingDotView.invalidate();
-        sendData(x, z);
+        sendData(x * sensitivity, y * sensitivity * TV_RATIO_Y);
     }
 
     private boolean sensorDataCanEntered(Sensor sensor) {
@@ -99,14 +114,20 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             if (currentTime - mLinAccTime < 50)
                 return false;
             else mLinAccTime = System.currentTimeMillis();
+        } else if (sensor == mSensorGyroscope) {
+            if (currentTime - mGyroTime < 80)
+                return false;
+            else mGyroTime = System.currentTimeMillis();
         } else return false;
 
         return true;
     }
 
-    private void sendData(float x, float z) {
-        // TODO: USE VIEW SEND TEMPORARY
-//        Sender.getInstance().sendData();
+    private void sendData(float x, float y) {
+        byte[] axis;
+
+        axis = MathUtil.packetBytes(MathUtil.int2ByteArray((int) x), MathUtil.int2ByteArray((int) y));
+        Sender.getInstance().sendData(axis);
     }
 
     @Override
@@ -120,6 +141,8 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             mSensorManager.registerListener(this, mSensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         if (mSensorLinearAcceleration != null)
             mSensorManager.registerListener(this, mSensorLinearAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
+        if (mSensorGyroscope != null)
+            mSensorManager.registerListener(this, mSensorGyroscope, SensorManager.SENSOR_DELAY_UI);
     }
 
     @Override
@@ -127,6 +150,8 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
         if (mSensorAccelerometer != null)
             mSensorManager.unregisterListener(this);
         if (mSensorLinearAcceleration != null)
+            mSensorManager.unregisterListener(this);
+        if (mSensorGyroscope != null)
             mSensorManager.unregisterListener(this);
         Sender.getInstance().deInit();
         super.onDestroy();

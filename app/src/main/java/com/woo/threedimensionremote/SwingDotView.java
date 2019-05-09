@@ -14,8 +14,8 @@ import com.woo.threedimensionremote.protocol.Sender;
 public class SwingDotView extends View {
     private static final String TAG = "SwingDotView";
     private static final float MAX_ACC = 20;
-    private float x, z;
     private float mScreenWidth, mScreenHeight;
+    private float x, z;
     private Paint mPointPaint, mTextPaint, mPathPaint;
     private Path mPath;
     private int sensitivity;
@@ -53,33 +53,29 @@ public class SwingDotView extends View {
     private void drawPoint(Canvas canvas, float x, float y) {
         canvas.drawPoint(x, y, mPointPaint);
 
-        sendData(x - mScreenWidth / 2, y - mScreenHeight / 2);
+//        sendData(x - mScreenWidth / 2, y - mScreenHeight / 2);
     }
 
-    private void sendData(float x, float y) {
-        byte[] bx, by;
+    public void sendData(float x, float y) {
+        byte[] axis;
 
-        bx = MathUtil.int2ByteArray((int) x);
-        bx[0] = 0;
-        Sender.getInstance().sendData(bx);
-        by = MathUtil.int2ByteArray((int) y);
-        by[0] = 1;
-        Sender.getInstance().sendData(by);
+        axis = MathUtil.packetBytes(MathUtil.int2ByteArray((int) x), MathUtil.int2ByteArray((int) y));
+        Sender.getInstance().sendData(axis);
     }
 
     // change to use angle / need init sensitivity at beginning
-    public void setPointPos(float x, float z) {
+    public void setPointPos(float x, float y) {
         x = (float) (Math.round(x * 10)) / 10;
-        z = (float) (Math.round(z * 10)) / 10;
+        y = (float) (Math.round(y * 10)) / 10;
         this.x = x * sensitivity + mScreenWidth / 2;
-        this.z = z * sensitivity + mScreenHeight / 2;
-//        Log.d(TAG, "setPointPos: " + x + "   " + z);
+        this.z = y * sensitivity + mScreenHeight / 2;
+//        Log.d(TAG, "setPointPos: " + x + "   " + y);
 /*        if (this.x + x > mScreenWidth) this.x = mScreenWidth;
         else if(this.x + x < 0) this.x = 0;
         else this.x += x;
-        if (this.z + z < mScreenHeight) this.z = mScreenHeight;
-        else if(this.z + z < 0) this.z = 0;
-        else this.z += z;*/
+        if (this.y + y < mScreenHeight) this.y = mScreenHeight;
+        else if(this.y + y < 0) this.y = 0;
+        else this.y += y;*/
     }
 
     public void setSensitivity(int sensitivity) {
