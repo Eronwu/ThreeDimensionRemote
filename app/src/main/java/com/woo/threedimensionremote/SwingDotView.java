@@ -53,7 +53,7 @@ public class SwingDotView extends View {
     private void drawPoint(Canvas canvas, float x, float y) {
         canvas.drawPoint(x, y, mPointPaint);
 
-        sendData(x, y);
+        sendData(x - mScreenWidth / 2, y - mScreenHeight / 2);
     }
 
     private void sendData(float x, float y) {

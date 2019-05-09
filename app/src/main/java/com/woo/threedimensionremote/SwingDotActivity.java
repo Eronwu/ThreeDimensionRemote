@@ -72,10 +72,12 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor == mSensorAccelerometer && whichSensor == 0 && sensorDataCanEntered(event.sensor)) {
+//        if (event.sensor == mSensorAccelerometer && whichSensor == 0){// && sensorDataCanEntered(event.sensor)) {
 //            Log.d(TAG, "onSensorChanged: " + event.values[0] + " " + event.values[2]);
             x = -event.values[0];
             z = -(event.values[1]);
-        } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1 && sensorDataCanEntered(event.sensor)) {
+//        } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1 && sensorDataCanEntered(event.sensor)) {
+        } else if (event.sensor == mSensorLinearAcceleration && whichSensor == 1 ){//&& sensorDataCanEntered(event.sensor)) {
             x = event.values[0];
             z = event.values[2];
         }
@@ -90,11 +92,11 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
         if (dataStop) return false;
         long currentTime = System.currentTimeMillis();
         if (sensor == mSensorAccelerometer) {
-            if (currentTime - mAccTime < 500)
+            if (currentTime - mAccTime < 150)
                 return false;
             else mAccTime = System.currentTimeMillis();
         } else if (sensor == mSensorLinearAcceleration) {
-            if (currentTime - mLinAccTime < 500)
+            if (currentTime - mLinAccTime < 50)
                 return false;
             else mLinAccTime = System.currentTimeMillis();
         } else return false;
