@@ -115,7 +115,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
                 return false;
             else mLinAccTime = System.currentTimeMillis();
         } else if (sensor == mSensorGyroscope) {
-            if (currentTime - mGyroTime < 80)
+            if (currentTime - mGyroTime < 65)
                 return false;
             else mGyroTime = System.currentTimeMillis();
         } else return false;

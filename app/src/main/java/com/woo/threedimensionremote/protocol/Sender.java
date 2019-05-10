@@ -15,11 +15,13 @@ public class Sender {
     }
 
     public void init(Context context) {
-        TCPSocketManager.getInstance().init(context);
+//        TCPSocketManager.getInstance().init(context);
+        UDPSocketManager.getInstance().init(context);
     }
 
     public void sendData(byte[] data) {
-        TCPSocketManager.getInstance().sendData(data);
+//        TCPSocketManager.getInstance().sendData(data);
+        UDPSocketManager.getInstance().sendData(data);
     }
 
     public byte[] receiveData() {
@@ -29,6 +31,7 @@ public class Sender {
     }
 
     public void deInit() {
-        TCPSocketManager.getInstance().deInit();
+//        TCPSocketManager.getInstance().deInit();
+        UDPSocketManager.getInstance().deInit();
     }
 }
