@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 public class UDPSocketManager {
     private static final String TAG = "UDPSocketManager";
@@ -43,6 +44,13 @@ public class UDPSocketManager {
             public void run() {
                 try {
                     mDatagramSocket = new DatagramSocket(PORT_NUM);
+//                    if (mDatagramSocket == null) {
+//                        Log.d(TAG, "start mDatagramSocket.bind");
+//                        mDatagramSocket = new DatagramSocket(null);
+//                        mDatagramSocket.setReuseAddress(true);
+//                        mDatagramSocket.bind(new InetSocketAddress(PORT_NUM));
+//                        Log.d(TAG, "mDatagramSocket.bind");
+//                    }
                     mServerAddress = InetAddress.getByName(SwingDotActivity.mStringServerIP);
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -15,7 +15,7 @@ public class SwingDotView extends View {
     private static final String TAG = "SwingDotView";
     private static final float MAX_ACC = 20;
     private float mScreenWidth, mScreenHeight;
-    private float x, z;
+    private float x, y;
     private Paint mPointPaint, mTextPaint, mPathPaint;
     private Path mPath;
     private int sensitivity;
@@ -67,8 +67,8 @@ public class SwingDotView extends View {
     public void setPointPos(float x, float y) {
         x = (float) (Math.round(x * 10)) / 10;
         y = (float) (Math.round(y * 10)) / 10;
-        this.x = x * sensitivity + mScreenWidth / 2;
-        this.z = y * sensitivity + mScreenHeight / 2;
+        this.x = x + mScreenWidth / 2;
+        this.y = y + mScreenHeight / 2;
 //        Log.d(TAG, "setPointPos: " + x + "   " + y);
 /*        if (this.x + x > mScreenWidth) this.x = mScreenWidth;
         else if(this.x + x < 0) this.x = 0;
@@ -89,15 +89,15 @@ public class SwingDotView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawPoint(canvas, x, z);
-        String s = x + "     " + z;
+        drawPoint(canvas, x, y);
+        String s = x + "     " + y;
 //        Log.d(TAG, "onDraw: "+ mScreenWidth + " " + mScreenHeight);
         canvas.drawText(s, mScreenWidth / 2, mScreenHeight - 50, mTextPaint);
 
         if (mShowPath) {
             canvas.drawText("PATH", 10, mScreenHeight - 50, mTextPaint);
             canvas.drawPath(mPath, mPathPaint);
-            mPath.lineTo(x, z);
+            mPath.lineTo(x, y);
         }
     }
 
@@ -109,7 +109,7 @@ public class SwingDotView extends View {
 
         Log.d(TAG, "onMeasure: " + mScreenWidth + " " + mScreenHeight);
         x = mScreenWidth / 2;
-        z = mScreenHeight / 2;
-        mPath.moveTo(x, z);
+        y = mScreenHeight / 2;
+        mPath.moveTo(x, y);
     }
 }

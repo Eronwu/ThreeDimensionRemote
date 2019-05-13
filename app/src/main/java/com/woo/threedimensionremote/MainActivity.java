@@ -16,20 +16,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     public static final String TAG = "ThreeDRemote";
-    String mStringAcc, mStringLinearAcc, mStringGyroscope, mStringMagField;
+    String mStringAcc, mStringLinearAcc, mStringGyroscope, mStringGameRotation;
     private SensorManager mSensorManager;
-    private Sensor mSensorAccelerometer, mSensorLinearAcceleration, mSensorGyroscope, mSensorMagneticField;
+    private Sensor mSensorAccelerometer, mSensorLinearAcceleration, mSensorGyroscope, mSensorGameRotation;
     private TextView mTextViewAccelerometerX;
     private TextView mTextViewGyroscopeX;
     private TextView mTextViewLinearAccelerationX;
-    private TextView mTextViewMagneticFieldX;
-    private long mAccTime, mGyroTime, mLinAccTime, mMagFieldTime;
+    private TextView mTextViewGameRotation;
+    private long mAccTime, mGyroTime, mLinAccTime, mGameRotationTime;
     private int showStyle = 0; // 0: scroll 1: all data list
     private boolean dataStop = false;
+    private final float[] mRotationMatrix = new float[16];
+    private final float[] mOrientationAngles = new float[3];
 
 
     @Override
@@ -43,14 +46,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void initSensor() {
         String s = new String();
         TextView textView;
-        Button buttonAcclerometer, buttonLinearAcceleration, buttonGyroscope;
+        Button buttonAcclerometer, buttonLinearAcceleration, buttonGyroscope, buttonRotationVector;
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
         mSensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         mSensorGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        mSensorMagneticField = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mSensorGameRotation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
         for (Sensor sensor : deviceSensors) {
             Log.d(TAG, "initSensor: " + sensor.getName());
@@ -62,19 +65,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mTextViewAccelerometerX = findViewById(R.id.text_view_accelerometer_x_axis);
         mTextViewGyroscopeX = findViewById(R.id.text_view_gyroscope_x_axis);
         mTextViewLinearAccelerationX = findViewById(R.id.text_view_linear_acceleration_x_axis);
-        mTextViewMagneticFieldX = findViewById(R.id.text_view_magnetic_field_x_axis);
+        mTextViewGameRotation = findViewById(R.id.text_view_rotation);
 
         buttonAcclerometer = findViewById(R.id.button_accelerometer);
         buttonLinearAcceleration = findViewById(R.id.button_linear_acceleration);
         buttonGyroscope = findViewById(R.id.button_gyroscope);
+        buttonRotationVector = findViewById(R.id.button_rotation);
 
         textView.setMovementMethod(ScrollingMovementMethod.getInstance());
         mTextViewAccelerometerX.setMovementMethod(ScrollingMovementMethod.getInstance());
         mTextViewGyroscopeX.setMovementMethod(ScrollingMovementMethod.getInstance());
         mTextViewLinearAccelerationX.setMovementMethod(ScrollingMovementMethod.getInstance());
-        mTextViewMagneticFieldX.setMovementMethod(ScrollingMovementMethod.getInstance());
+        mTextViewGameRotation.setMovementMethod(ScrollingMovementMethod.getInstance());
 
-        mStringAcc = mStringLinearAcc = mStringGyroscope = mStringMagField = "";
+        mStringAcc = mStringLinearAcc = mStringGyroscope = mStringGameRotation = "";
+
+        // initialize the rotation matrix to identity
+        mRotationMatrix[ 0] = 1;
+        mRotationMatrix[ 4] = 1;
+        mRotationMatrix[ 8] = 1;
+        mRotationMatrix[12] = 1;
 
         buttonAcclerometer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +112,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         .putExtra("whichSensor", 2));
             }
         });
+        buttonRotationVector.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent()
+                        .setClass(MainActivity.this, SwingDotActivity.class)
+                        .putExtra("whichSensor", 3));
+            }
+        });
     }
 
     @Override
@@ -113,9 +131,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mSensorManager.registerListener(this, mSensorLinearAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
         if (mSensorGyroscope != null)
             mSensorManager.registerListener(this, mSensorGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
-        if (mSensorMagneticField != null)
-            mSensorManager.registerListener(this, mSensorMagneticField, SensorManager.SENSOR_DELAY_NORMAL);
-        mAccTime = mGyroTime = mLinAccTime = mMagFieldTime = System.currentTimeMillis();
+        if (mSensorGameRotation != null)
+            mSensorManager.registerListener(this, mSensorGameRotation, SensorManager.SENSOR_DELAY_UI);
+        mAccTime = mGyroTime = mLinAccTime = mGameRotationTime = System.currentTimeMillis();
     }
 
     @Override
@@ -126,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mSensorManager.unregisterListener(this);
         if (mSensorGyroscope != null)
             mSensorManager.unregisterListener(this);
-        if (mSensorMagneticField != null)
+        if (mSensorGameRotation != null)
             mSensorManager.unregisterListener(this);
         super.onDestroy();
     }
@@ -157,13 +175,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 mTextViewLinearAccelerationX.setText(s);
             else
                 mTextViewLinearAccelerationX.setText(mStringGyroscope);
-        } else if (event.sensor == mSensorMagneticField && sensorDataCanEntered(event.sensor)) {
-            mStringMagField += "\n" + s;
+        } else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR){// && sensorDataCanEntered(event.sensor)) {
+            SensorManager.getRotationMatrixFromVector(
+                    mRotationMatrix , event.values);
+            // Express the updated rotation matrix as three orientation angles.
+            SensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
+////            SensorManager.remapCoordinateSystem()
+            s = doubleToInaccurateString(Math.toDegrees(mOrientationAngles[0])) + " " +
+                    doubleToInaccurateString(Math.toDegrees(mOrientationAngles[1])) + " " +
+                    doubleToInaccurateString(Math.toDegrees(mOrientationAngles[2]));
+            mStringGameRotation += "\n" + s;
 
             if (showStyle == 0)
-                mTextViewMagneticFieldX.setText(s);
+                mTextViewGameRotation.setText(s);
             else
-                mTextViewMagneticFieldX.setText(mStringMagField);
+                mTextViewGameRotation.setText(mStringGameRotation);
         }
     }
 
@@ -182,10 +208,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (currentTime - mLinAccTime < 500)
                 return false;
             else mLinAccTime = System.currentTimeMillis();
-        } else if (sensor == mSensorMagneticField) {
-            if (currentTime - mMagFieldTime < 1000)
+        } else if (sensor == mSensorGameRotation) {
+            if (currentTime - mGameRotationTime < 1000)
                 return false;
-            else mMagFieldTime = System.currentTimeMillis();
+            else mGameRotationTime = System.currentTimeMillis();
         } else return false;
 
         return true;
@@ -197,7 +223,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private String floatToInaccurateString(float f) {
-        return Float.toString((int) f);
+        BigDecimal b = new BigDecimal(f);
+        return Float.toString(b.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+    }
+
+    private String doubleToInaccurateString(double f) {
+        BigDecimal b = new BigDecimal(f);
+        return Double.toString(b.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue());
     }
 
     @Override
@@ -210,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_data_clear:
-                mStringAcc = mStringLinearAcc = mStringGyroscope = mStringMagField = "";
+                mStringAcc = mStringLinearAcc = mStringGyroscope = mStringGameRotation = "";
                 break;
             case R.id.menu_data_style:
                 showStyle = showStyle == 0 ? 1 : 0;
