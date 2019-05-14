@@ -21,7 +21,7 @@ import com.woo.threedimensionremote.protocol.Sender;
 
 public class SwingDotActivity extends AppCompatActivity implements SensorEventListener {
     private static String TAG = "SwingDotActivity";
-    private static final float TV_RATIO_Y = 1080f / 1920f;
+    private static final float TV_RATIO_Y = 720f / 1280f; // wm size is this TODO!
     private static final float ERR_NUM = 666f;
     private float x, y;
     private float lastX = ERR_NUM, lastY =ERR_NUM;
@@ -43,6 +43,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     private float rawY = 0f;
     private float[] mRotationMatrix = new float[16];
     private float[] mOrientationAngles = new float[3];
+    private float[] mOrientationRawAngles = new float[3];
     private float[] mOrientationLastAngles = new float[3];
     private float[] mDAngles = new float[3];
     private float[] mDefaultAngles = new float[3];
@@ -85,7 +86,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             @Override
             public void onClick(View v) {
                 for(int i=0;i<mDefaultAngles.length;i++)
-                    mDefaultAngles[i] = mOrientationAngles[i];
+                    mDefaultAngles[i] = mOrientationRawAngles[i];
 //                mDefaultX = rawX;
 //                mDefaultY = rawY;
 //                lastX += mDefaultX;
@@ -132,6 +133,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             // Express the updated rotation matrix as three orientation angles.
             SensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
             for (int i = 0; i < mDefaultAngles.length; i++) {
+                mOrientationRawAngles[i] = mOrientationAngles[i];
                 mOrientationAngles[i] -= mDefaultAngles[i];
             }
         }
