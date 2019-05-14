@@ -59,7 +59,7 @@ public class SwingDotView extends View {
     public void sendData(float x, float y) {
         byte[] axis;
 
-        axis = MathUtil.packetBytes(MathUtil.int2ByteArray((int) x), MathUtil.int2ByteArray((int) y));
+        axis = MathUtil.packetAxisBytes(MathUtil.int2ByteArray((int) x), MathUtil.int2ByteArray((int) y));
         Sender.getInstance().sendData(axis);
     }
 
@@ -92,7 +92,7 @@ public class SwingDotView extends View {
         drawPoint(canvas, x, y);
         String s = x + "     " + y;
 //        Log.d(TAG, "onDraw: "+ mScreenWidth + " " + mScreenHeight);
-        canvas.drawText(s, mScreenWidth / 2, mScreenHeight - 50, mTextPaint);
+        canvas.drawText(s, mScreenWidth *2 / 3, mScreenHeight - 50, mTextPaint);
 
         if (mShowPath) {
             canvas.drawText("PATH", 10, mScreenHeight - 50, mTextPaint);

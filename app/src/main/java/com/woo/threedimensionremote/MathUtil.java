@@ -11,11 +11,12 @@ public class MathUtil {
         return result;
     }
 
-    public static byte[] packetBytes(byte[] x, byte[] y) {
-        byte[] result = new byte[8];
+    public static byte[] packetAxisBytes(byte[] x, byte[] y) {
+        byte[] result = new byte[9];
+        result[0] = 0;
         for (int i = 0; i < 4; i++) {
-            result[i] = x[i];
-            result[i + 4] = y[i];
+            result[i + 1] = x[i];
+            result[i + 5] = y[i];
         }
         return result;
     }

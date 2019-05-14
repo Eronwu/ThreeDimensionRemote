@@ -23,6 +23,12 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     private static String TAG = "SwingDotActivity";
     private static final float TV_RATIO_Y = 720f / 1280f; // wm size is this TODO!
     private static final float ERR_NUM = 666f;
+    enum SEND_MSG_TYPE{
+        AXIS,
+        LEFT_CLICK,
+        RIGHT_CLICK
+    }
+
     private float x, y;
     private float lastX = ERR_NUM, lastY =ERR_NUM;
     private float paintX, paintY;
@@ -56,6 +62,8 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
 
         mSwingDotView = findViewById(R.id.swing_dot_view);
         Button buttonTarget = findViewById(R.id.button_set_aim);
+        Button buttonLeftClick = findViewById(R.id.button_left_click);
+        Button buttonRightClick = findViewById(R.id.button_right_click);
         SeekBar seekBar = findViewById(R.id.seek_bar_sensitivity);
 
         initSensor();
@@ -87,11 +95,24 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             public void onClick(View v) {
                 for(int i=0;i<mDefaultAngles.length;i++)
                     mDefaultAngles[i] = mOrientationRawAngles[i];
-//                mDefaultX = rawX;
-//                mDefaultY = rawY;
-//                lastX += mDefaultX;
-//                lastY += mDefaultY;
+                sendData(-1280f, -720f, SEND_MSG_TYPE.AXIS);
+                sendData(1280/2f, 720/2f, SEND_MSG_TYPE.AXIS); // TODO: use wm size
+                sendData(1f, 1f, SEND_MSG_TYPE.AXIS);
 //                SensorManager.remapCoordinateSystem(mRotationMatrix, );
+            }
+        });
+
+        buttonLeftClick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendData(0, 0, SEND_MSG_TYPE.LEFT_CLICK);
+            }
+        });
+
+        buttonRightClick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendData(0, 0, SEND_MSG_TYPE.RIGHT_CLICK);
             }
         });
     }
@@ -149,7 +170,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
         }
 
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-            shakeVal = 0.01f;
+            shakeVal = 0.005f;
             for (int i = 0; i < 3; i++) {
                 mDAngles[i] = mOrientationAngles[i] - mOrientationLastAngles[i];
             }
@@ -168,7 +189,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             dy = y;
         }
 
-        sendData(dx, dy);
+        sendData(dx, dy, SEND_MSG_TYPE.AXIS);
         mSwingDotView.setPointPos(x, y);
         mSwingDotView.invalidate();
 
@@ -219,14 +240,35 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
         return true;
     }
 
-    private void sendData(float x, float y) {
-        byte[] axis;
+    // msg:
+    // 0: AXIS
+    // 1: LEFT CLICK
+    // 2: RIGHT_CLICK
+    private void sendData(float x, float y, SEND_MSG_TYPE msg) {
+        byte[] data;
 
-        if (x ==0f && y == 0f)
-            return;
+        switch (msg) {
+            case AXIS:
+                if (x ==0f && y == 0f)
+                    return;
 
-        axis = MathUtil.packetBytes(MathUtil.int2ByteArray((int) x), MathUtil.int2ByteArray((int) y));
-        Sender.getInstance().sendData(axis);
+                data = MathUtil.packetAxisBytes(MathUtil.int2ByteArray((int) x), MathUtil.int2ByteArray((int) y));
+                break;
+            case LEFT_CLICK:
+                data = new byte[2];
+                data[0] = 1;
+                data[1] = 0;
+                break;
+            case RIGHT_CLICK:
+                data = new byte[2];
+                data[0] = 1;
+                data[1] = 1;
+                break;
+            default:
+                Log.e(TAG, "sendData: err!");
+                return;
+        }
+        Sender.getInstance().sendData(data);
     }
 
     @Override
