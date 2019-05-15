@@ -25,6 +25,7 @@
         android:id="@+id/seek_bar_sensitivity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
         android:progress="20"
         app:layout_constraintBottom_toTopOf="@+id/button_left_click"
         app:layout_constraintLeft_toLeftOf="parent"

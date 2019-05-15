@@ -117,7 +117,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 startActivity(new Intent()
                         .setClass(MainActivity.this, SwingDotActivity.class)
-                        .putExtra("whichSensor", 3));
+                        .putExtra("whichSensor", 4));
+            }
+        });
+        buttonRotationVector.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startActivity(new Intent()
+                        .setClass(MainActivity.this, RotationVectorDemo.class));
+                return true;
             }
         });
     }
