@@ -79,7 +79,7 @@ public class UDPSocketManager {
         public void run() {
             if (mDatagramSocket != null) {
                 try {
-                    Log.d(TAG, "sendData: send data: " + data.length);
+//                    Log.d(TAG, "sendData: send data: " + data.length);
                     DatagramPacket datagramPacket = new DatagramPacket(data, data.length, mServerAddress, PORT_NUM);
                     if (datagramPacket == null)
                         Log.e(TAG, "sendData: null!");

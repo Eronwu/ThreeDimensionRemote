@@ -62,6 +62,8 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
 //    private final float[] rotationMatrix = new float[9];
 //    private final float[] orientationAngles = new float[3];
 
+    private long lastTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +75,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
         Button buttonRightClick = findViewById(R.id.button_right_click);
         SeekBar seekBar = findViewById(R.id.seek_bar_sensitivity);
 
+        lastTime = System.currentTimeMillis();
         initSensor();
         if (mStringServerIP != null) {
             Sender.getInstance().init(SwingDotActivity.this);
@@ -103,8 +106,12 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
                 for (int i = 0; i < mDefaultAngles.length; i++)
                     mDefaultAngles[i] = mOrientationRawAngles[i];
                 sendData(-1280f, -720f, SEND_MSG_TYPE.AXIS);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 sendData(1280 / 2f, 720 / 2f, SEND_MSG_TYPE.AXIS); // TODO: use wm size
-                sendData(1f, 1f, SEND_MSG_TYPE.AXIS);
 //                SensorManager.remapCoordinateSystem(mRotationMatrix, );
             }
         });
@@ -155,7 +162,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     @Override
     public void onSensorChanged(SensorEvent event) {
 //        if (event.sensor == mSensorAccelerometer && whichSensor == 0 && sensorDataCanEntered(mSensorAccelerometer)) {
-        if (event.sensor == mSensorAccelerometer && whichSensor == 0){// && sensorDataCanEntered(event.sensor)) {
+        if (event.sensor == mSensorAccelerometer && whichSensor == 0) {// && sensorDataCanEntered(event.sensor)) {
 //            Log.d(TAG, "onSensorChanged: " + event.values[0] + " " + event.values[2]);
 //            x = -event.values[0];
 //            y = -(event.values[1]);
@@ -185,7 +192,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
                 mOrientationRawAngles[i] = mOrientationAngles[i];
                 mOrientationAngles[i] -= mDefaultAngles[i];
             }
-        } else if (event.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR && whichSensor == 4 && sensorDataCanEntered(event.sensor)) {
+        } else if (event.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR && whichSensor == 4) {// && sensorDataCanEntered(event.sensor)) {
             SensorManager.getRotationMatrixFromVector(
                     mRotationMatrix, event.values);
             // Express the updated rotation matrix as three orientation angles.
@@ -213,7 +220,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
             for (int i = 0; i < 3; i++) {
                 mDAngles[i] = mOrientationAngles[i] - mOrientationLastAngles[i];
             }
-            Log.d(TAG, "onSensorChanged:   " + (float) (Math.round(mDAngles[0] * 1000)) / 1000);
+//            Log.d(TAG, "onSensorChanged:   " + (float) (Math.round(mDAngles[0] * 1000)) / 1000);
             if (Math.abs(mDAngles[0]) < shakeVal && Math.abs(mDAngles[1]) < shakeVal) return;
 
             x = (float) Math.tan((double) (mOrientationAngles[0])) * sensitivity * sensitivity;
@@ -274,7 +281,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
                 return false;
             else mRotationTime = System.currentTimeMillis();
         } else if (sensor == mSensorGameRotationVector) {
-            if (currentTime - mRotationTime < 65)
+            if (currentTime - mRotationTime < 35)
                 return false;
             else mRotationTime = System.currentTimeMillis();
         } else return false;
@@ -289,6 +296,8 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
     private void sendData(float x, float y, SEND_MSG_TYPE msg) {
         byte[] data;
 
+//        Log.d(TAG, "sendData " + (System.currentTimeMillis() - lastTime));
+//        lastTime = System.currentTimeMillis();
         switch (msg) {
             case AXIS:
                 if (x == 0f && y == 0f)
@@ -375,7 +384,7 @@ public class SwingDotActivity extends AppCompatActivity implements SensorEventLi
                 break;
             case R.id.menu_data_ip:
                 final EditText serverIp = new EditText(this);
-                serverIp.setText("10.1.1.103");
+                serverIp.setText("10.1.1.109");
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("pls input server ip:")
                         .setView(serverIp)
